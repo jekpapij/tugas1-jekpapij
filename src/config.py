@@ -20,3 +20,5 @@ PROJECT_ROOT = find_project_root()
 RAW_PATH = PROJECT_ROOT / "data" / "raw" / "hotspots.parquet"
 CLEAN_PATH = PROJECT_ROOT / "data" / "processed" / "hotspots_clean.parquet"
 FIGURES_DIR = PROJECT_ROOT / "output" / "figures"
+DAILY_REF_PATH = PROJECT_ROOT / "data" / "raw" / "daily_province.csv"
+GAP_PATH = PROJECT_ROOT / "data" / "processed" / "hari_tanpa_deteksi.parquet"

@@ -2,39 +2,50 @@
 
 ## Dataset yang Dipilih
 
-Isi informasi berikut sebelum Milestone 1.
-
 | Item | Isi |
 |---|---|
-| Nama dataset | `[isi nama dataset]` |
-| Sumber | `[URL BPS / Satu Data Indonesia / BMKG / HuggingFace / Kaggle]` |
-| Lisensi/ketentuan pakai | `[isi]` |
-| Ukuran | `[>= 500 MB atau > 1.000.000 baris]` |
-| Periode data | `[isi]` |
-| Unit analisis | `[isi]` |
+| Nama dataset | Indonesia Fire Hotspots (NASA FIRMS, daily) — file `hotspots.parquet` |
+| Sumber | Kaggle: https://www.kaggle.com/datasets/danielaijdkx/indonesia-fire-hotspots-nasa-firms (data asli: NASA FIRMS, https://firms.modaps.eosdis.nasa.gov) |
+| Versi yang dipakai | Kaggle dataset version 13 (diperbarui 2026-10-28) |
+| Lisensi/ketentuan pakai | CC BY 4.0 — wajib mencantumkan kredit NASA FIRMS dan geoBoundaries |
+| Ukuran | ±138 MB (Parquet terkompresi), ±6,08 juta baris |
+| Periode data | 2012-01-20 s/d 2026-10-27 (Suomi NPP); 2018-04-01 s/d 2026-10-27 (NOAA-20) |
+| Unit analisis | Satu baris = satu deteksi titik panas (piksel VIIRS 375 m) pada satu lintasan satelit, lengkap dengan provinsi |
 
-## Tempat Mencari Dataset
+### Mengapa dataset ini
 
-Pilih dataset Indonesia yang legal digunakan, dapat didokumentasikan sumbernya, dan memenuhi batas ukuran tugas.
+- Memenuhi syarat ukuran (> 1 juta baris) dan berasal dari sumber yang diizinkan (Kaggle Indonesia).
+- Memiliki dimensi **waktu** (tanggal + jam akuisisi) dan **ruang** (lat/lon + provinsi) sehingga cocok untuk analisis temporal/spasial di Milestone 3.
+- Relevan dengan isu nyata Indonesia: kebakaran hutan dan lahan (*karhutla*), misalnya musim kebakaran 2015, 2019, dan 2023.
 
-| Situs | Kegunaan |
-|---|---|
-| [Satu Data Indonesia](https://data.go.id/) | Portal data terbuka lintas instansi pemerintah Indonesia. |
-| [Badan Pusat Statistik](https://www.bps.go.id/) | Statistik sosial, ekonomi, kependudukan, dan data wilayah. |
-| [BMKG Data Online](https://dataonline.bmkg.go.id/) | Data cuaca, iklim, gempa bumi, dan observasi meteorologi. |
-| [Hugging Face Datasets](https://huggingface.co/datasets) | Dataset publik yang dapat dicari berdasarkan topik, bahasa, atau ukuran. |
-| [Kaggle Datasets](https://www.kaggle.com/datasets) | Katalog dataset publik; periksa lisensi dan dokumentasi pembuatnya. |
-| [Google Dataset Search](https://datasetsearch.research.google.com/) | Mesin pencari untuk menemukan dataset dari berbagai portal. |
+### Catatan cara membaca data (dari dokumentasi sumber)
+
+- Dua satelit (Suomi NPP dan NOAA-20) mengamati api yang sama, sehingga **jumlah deteksi kedua satelit tidak boleh dijumlahkan**. Untuk tren sejak 2012 gunakan Suomi NPP saja.
+- `frp` (*fire radiative power*, MW) mengukur intensitas api.
+- Kolom `processing`: data hari-hari terakhir berasal dari *near-real-time* (NRT) dan akan diganti arsip final (SP) beberapa bulan kemudian.
 
 ## Cara Memperoleh Data
 
-1. Buka URL sumber di atas.
-2. Unduh file ke folder `data/raw/` tanpa mengubah data mentah.
-3. Catat nama file dan checksum bila tersedia.
-4. Ubah variabel `DATA_PATH` pada `notebooks/01_data_profiling.ipynb` agar menunjuk ke file tersebut.
+1. Login ke Kaggle, buka URL dataset di atas.
+2. Unduh **hanya** file `hotspots.parquet` (tidak perlu `daily_province.csv` / `monthly_province.csv`).
+   Alternatif lewat Kaggle CLI (butuh API token di `~/.kaggle/kaggle.json`):
+
+   ```bash
+   kaggle datasets download danielaijdkx/indonesia-fire-hotspots-nasa-firms \
+       -f hotspots.parquet -p data/raw/
+   ```
+
+3. Simpan sebagai `data/raw/hotspots.parquet` tanpa mengubah isinya.
+4. Notebook `01_data_profiling.ipynb` dan `02_data_cleaning.ipynb` sudah menunjuk ke path tersebut (`DATA_PATH`).
+
+Karena dataset diperbarui harian, jumlah baris versi terbaru bisa sedikit lebih banyak daripada angka di laporan ini.
 
 ## Aturan Penyimpanan
 
-- Jangan commit dataset mentah atau hasil olahan berukuran besar ke Git.
+- Jangan commit dataset mentah atau hasil olahan berukuran besar ke Git (`data/raw/*` dan `data/processed/*` sudah di-`.gitignore`).
 - File pada `data/raw/` adalah data asli dan tidak boleh diubah.
-- Simpan hasil transformasi yang dapat direproduksi pada `data/processed/`.
+- Hasil transformasi yang dapat direproduksi disimpan di `data/processed/` (dibuat oleh `02_data_cleaning.ipynb`).
+
+## Atribusi
+
+We acknowledge the use of data from NASA's Fire Information for Resource Management System (FIRMS), part of NASA's Earth Science Data and Information System (ESDIS). Batas provinsi: geoBoundaries (Runfola et al. 2020), CC BY 4.0. Dataset Kaggle disusun oleh pengguna `danielaijdkx`.

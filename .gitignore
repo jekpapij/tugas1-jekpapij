@@ -27,3 +27,5 @@ output/*.json
 # Sistem operasi dan editor
 .DS_Store
 .vscode/
+# Folder sementara DuckDB (spill ke disk)
+.tmp/
